@@ -149,12 +149,33 @@ namespace CodigosPostales_net
         public async Task<List<CodigoPostalEntidad>> ObtenerCodigosPostalesPorAsentamientoAsync(string asentamiento)
         {
             // Patrón de búsqueda tipo LIKE (por ejemplo, buscar personas cuyo nombre contenga "Juan")
-            var filtro = Builders<CodigoPostalEntidad>.Filter.Regex("Asentamiento", new BsonRegularExpression(asentamiento,"i"));
+            var filtro = Builders<CodigoPostalEntidad>.Filter.Regex("Asentamiento", new BsonRegularExpression(asentamiento, "i"));
 
             // Buscar documentos que coincidan con el patrón
             var codigos = await _collection.Find(filtro).ToListAsync();
 
             return codigos;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="estado"></param>
+        /// <returns></returns>
+        public async Task<CodigoPostalEntidad> ObtenerCodigoPostalAleatorioAsync(string estado)
+        {
+            Random random = new Random();
+            List<CodigoPostalEntidad> codigos;
+            int estadoId;
+
+            if (int.TryParse(estado, out estadoId))
+                codigos = (await _collection.FindAsync(x => x.EstadoId == estadoId)).ToList();
+            else
+                codigos = (await _collection.FindAsync(x => x.Estado == estado)).ToList();
+
+            var i = random.Next(0, codigos.Count);
+
+            return codigos[i];
         }
     }
 }

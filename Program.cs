@@ -36,7 +36,11 @@ builder.Services.AddCors(options => options.AddPolicy("AllowWebApp", builder => 
 var app = builder.Build();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("../swagger/v1/swagger.json", "");
+    c.RoutePrefix = "";
+});
 
 app.UseCors("AllowWebApp");
 app.UseHttpsRedirection();

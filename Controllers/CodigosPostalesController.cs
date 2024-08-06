@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CodigosPostales_net.Controllers
 {
@@ -10,14 +9,14 @@ namespace CodigosPostales_net.Controllers
     [ApiController]
     [Route("api/[controller]")]
     public class CodigosPostalesController : ControllerBase
-    {      
+    {
         private readonly RepositorioMongoDb _repositorioMongoDb;
 
         /// <summary>
         /// Constructor
         /// </summary>        
         /// <param name="repositorioMongoDb"></param>
-        public CodigosPostalesController(             
+        public CodigosPostalesController(
             RepositorioMongoDb repositorioMongoDb
         )
         {
@@ -131,6 +130,39 @@ namespace CodigosPostales_net.Controllers
             CodigoPostalEntidad x;
 
             x = await _repositorioMongoDb.ObtenerCodigoPostalAleatorioAsync();
+
+            return Ok(new
+            {
+                x.CodigoPostal,
+                x.AlcaldiaId,
+                x.Estado,
+                x.EstadoId,
+                x.Alcaldia,
+                x.TipoDeAsentamiento,
+                x.Asentamiento
+            });
+        }
+
+        /// <summary>
+        /// Obtiene un codigo postal aleatorio
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("Estados/{estado}/Aleatorio")]
+        public async Task<IActionResult> ObtenerCodigoPostalAleatorioPorEstadoAsync(string estado)
+        {
+            int estadoId;
+
+            if (int.TryParse(estado, out estadoId))
+            {
+                if (estadoId > 0 && estadoId >= 33)
+                {
+                    return BadRequest(new { Menseje = "El estadoId debe de ser de 1 a 32" });
+                }
+
+            }
+            CodigoPostalEntidad x;
+
+            x = await _repositorioMongoDb.ObtenerCodigoPostalAleatorioAsync(estado);
 
             return Ok(new
             {
