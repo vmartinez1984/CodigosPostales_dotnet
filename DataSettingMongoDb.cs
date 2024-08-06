@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace CodigosPostales_net
 {
     public class DataSettingMongoDb
@@ -11,6 +6,6 @@ namespace CodigosPostales_net
 
         public string DatabaseName { get; set; } = null!;
 
-        public string ZipCodeCollectionName { get; set; } = null!;
+        public string CollectionName { get; set; } = null!;
     }
 }

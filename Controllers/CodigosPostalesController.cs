@@ -10,26 +10,17 @@ namespace CodigosPostales_net.Controllers
     [ApiController]
     [Route("api/[controller]")]
     public class CodigosPostalesController : ControllerBase
-    {
-        // private readonly ILogger<CodigosPostalesController> _logger;        
-        // private readonly IServiceScopeFactory _scopeFactory;
-        private readonly AppDbContext _appDbContext;
+    {      
         private readonly RepositorioMongoDb _repositorioMongoDb;
 
         /// <summary>
         /// Constructor
-        /// </summary>
-        /// <param name="appDbContext"></param>
-        public CodigosPostalesController(
-            //ILogger<CodigosPostalesController> logger,            
-            //IServiceScopeFactory scopeFactory,
-            AppDbContext appDbContext,
+        /// </summary>        
+        /// <param name="repositorioMongoDb"></param>
+        public CodigosPostalesController(             
             RepositorioMongoDb repositorioMongoDb
-            )
+        )
         {
-            //_logger = logger;            
-            //_scopeFactory = scopeFactory;
-            _appDbContext = appDbContext;
             _repositorioMongoDb = repositorioMongoDb;
         }
 
@@ -38,18 +29,11 @@ namespace CodigosPostales_net.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("Estados", Name = "Estados")]
-        public async Task<IActionResult> GetStates()
+        public async Task<IActionResult> ObtenerEstadosAsync()
         {
-            var lista = await _appDbContext.CodigoPostal
-            .Select(x => new
-            {
-                Nombre = x.Estado,
-                Id = x.EstadoId
-            }).Distinct()
-            .OrderBy(x => x.Id)
-            .ToListAsync();
+            var lista = await _repositorioMongoDb.ObtenerEstadosASync();
 
-            return Ok(lista);
+            return Ok(lista.OrderBy(x => x.Nombre));
         }
 
         /// <summary>
@@ -60,35 +44,35 @@ namespace CodigosPostales_net.Controllers
         [HttpGet("Estados/{estado}/Alcaldias")]
         public async Task<IActionResult> ObtenerAlcaldias(string estado)
         {
-            int estadoId;
-            IQueryable<CodigoPostalEntidad> queryable;
+            var lista = await _repositorioMongoDb.ObtenerAlcaldiasAsync(estado);
 
-            if (int.TryParse(estado, out estadoId))
-                queryable = _appDbContext.CodigoPostal.Where(item => item.EstadoId == estadoId);
-            else
-                queryable = _appDbContext.CodigoPostal.Where(item => item.Estado == estado);
+            return Ok(lista);
+        }
 
-            var list = await queryable.Select(x => new
+        /// <summary>
+        /// Códigos por estado y alcaldia
+        /// </summary>
+        /// <param name="estado"></param>
+        /// <param name="alcaldia"></param>
+        /// <returns></returns>
+        [HttpGet("Estados/{estado}/Alcaldias/{alcaldia}")]
+        public async Task<IActionResult> GetZipCodesByMunicipality(string estado, string alcaldia)
+        {
+            var list = (await _repositorioMongoDb.ObtenerCodigosPostalesAsync(estado, alcaldia))
+            .Select(x => new
             {
+                x.CodigoPostal,
+                x.AlcaldiaId,
+                x.Estado,
+                x.EstadoId,
                 x.Alcaldia,
-                Id = x.AlcaldiaId
+                x.TipoDeAsentamiento,
+                x.Asentamiento
             })
-              .Distinct()
-              .OrderBy(x => x.Id)
-              .ToListAsync();
+            .ToList();
 
             return Ok(list);
         }
-
-        // [HttpGet("Estados/{estado}/Alcaldias/{alcaldia}")]
-        // public async Task<IActionResult> GetZipCodesByMunicipality(string estado, string alcaldia)
-        // {
-        //     List<CodigoPostalDto> list;
-
-        //     list = await _unitOfWorkBl.CodigoPostal.GetZipCodesByMunicipalityAsync(estado, alcaldia);
-
-        //     return Ok(list);
-        // }
 
         /// <summary>
         /// Obtener la lista de codigos postales
@@ -97,8 +81,7 @@ namespace CodigosPostales_net.Controllers
         [HttpGet("{codigoPostal}")]
         public async Task<IActionResult> ObtenerCodigosPostales([StringLength(5, MinimumLength = 5)] string codigoPostal)
         {
-            var list = await _appDbContext.CodigoPostal
-            .Where(item => item.CodigoPostal == codigoPostal)
+            var lista = (await _repositorioMongoDb.ObtenerCodigosPostalesAsync(codigoPostal))
             .Select(x => new
             {
                 x.CodigoPostal,
@@ -109,9 +92,9 @@ namespace CodigosPostales_net.Controllers
                 x.TipoDeAsentamiento,
                 x.Asentamiento
             })
-            .ToListAsync();
+            .ToList();
 
-            return Ok(list);
+            return Ok(lista);
         }
 
         /// <summary>
@@ -120,10 +103,9 @@ namespace CodigosPostales_net.Controllers
         /// <param name="asentamiento"></param>
         /// <returns></returns>
         [HttpGet("{asentamiento}/Buscar")]
-        public async Task<IActionResult> ObtenerCodigosPorstalesPorAsentamientamiento(string asentamiento)
+        public async Task<IActionResult> ObtenerCodigosPostalesPorAsentamientamiento(string asentamiento)
         {
-            var list = await _appDbContext.CodigoPostal
-            .Where(item => item.Asentamiento.Contains(asentamiento))
+            var list = (await _repositorioMongoDb.ObtenerCodigosPostalesPorAsentamientoAsync(asentamiento))
             .Select(x => new
             {
                 x.CodigoPostal,
@@ -134,131 +116,9 @@ namespace CodigosPostales_net.Controllers
                 x.TipoDeAsentamiento,
                 x.Asentamiento
             })
-            .ToListAsync();
+            .ToList();
 
             return Ok(list);
-        }
-
-        /// <summary>
-        /// Subir coleccion de codigos postales
-        /// </summary>
-        /// <param name="formFile"></param>
-        /// <returns></returns>
-        [HttpPost]
-        public async Task<IActionResult> Post(IFormFile formFile)
-        {
-            string[] lines;
-
-            var fechaInicial = DateTime.Now; var fechaFinal = DateTime.Now;
-            StreamReader reader = new StreamReader(formFile.OpenReadStream(), System.Text.Encoding.Latin1);
-            string text = reader.ReadToEnd();
-            lines = text.Split("\n");
-            try
-            {
-                int j = 0;
-
-                Console.WriteLine("Borrando los datos e insertando Codigos postales");
-                _appDbContext.Database.ExecuteSqlRaw("TRUNCATE TABLE CodigoPostal");
-                await _appDbContext.SaveChangesAsync();
-                // d_codigo|d_asenta   |d_tipo_asenta|D_mnpio         |d_estado         |d_ciudad           | d_CP  | c_estado  |  c_oficina|c_CP|c_tipo_asenta|c_mnpio |id_asenta_cpcons|d_zona|c_cve_ciudad
-                // 01000   | San Ángel | Colonia     | Álvaro Obregón | Ciudad de México| Ciudad de México  | 01001 | 09        |  01001    |    | 09          | 010    |0001            |Urbano|01
-                // 0       | 1         | 2           | 3              | 4               | 5                 | 6     | 7         | 8         | 9  | 10          | 11     | 12             | 13   | 14
-                for (int i = 2; i < lines.Count(); i++)
-                {
-                    string[] array;
-                    CodigoPostalEntidad codigoPostalEntity;
-
-                    array = lines[i].Split("|");
-                    Console.WriteLine($"{i} Count: " + array.Count() + " ->" + lines[i]);
-                    if (array.Length > 10)
-                    {
-                        codigoPostalEntity = new CodigoPostalEntidad
-                        {
-                            CodigoPostal = array[0],
-                            Asentamiento = array[1],
-                            TipoDeAsentamiento = array[2],
-                            Alcaldia = array[3],
-                            Estado = array[4],
-                            EstadoId = Convert.ToInt32(array[7]),
-                            AlcaldiaId = Convert.ToInt32(array[11]),
-                        };
-                        _appDbContext.CodigoPostal.Add(codigoPostalEntity);
-                    }
-                    if (j == 10000)
-                    {
-                        await _appDbContext.SaveChangesAsync();
-                        j = 0;
-                    }
-                    j++;
-                }
-                await _appDbContext.SaveChangesAsync();
-                Console.WriteLine("Terminado");
-                fechaFinal = DateTime.Now;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-            return Accepted(new { fechaInicial, fechaFinal, TotalDeRegistros = lines.Count(), Tiempo = (fechaInicial - fechaFinal).TotalSeconds });
-        }
-
-        /// <summary>
-        /// Subir coleccion de codigos postales
-        /// </summary>
-        /// <param name="formFile"></param>
-        /// <returns></returns>
-        [HttpPost("Mongo")]
-        public async Task<IActionResult> AgregarAMongo(IFormFile formFile)
-        {
-            string[] lines;
-
-            var fechaInicial = DateTime.Now; var fechaFinal = DateTime.Now;
-            StreamReader reader = new StreamReader(formFile.OpenReadStream(), System.Text.Encoding.Latin1);
-            string text = reader.ReadToEnd();
-            lines = text.Split("\n");
-            List<CodigoPostalEntidad> lista = new List<CodigoPostalEntidad>();
-            try
-            {               
-                Console.WriteLine("Borrando los datos e insertando Codigos postales");
-                //_appDbContext.Database.ExecuteSqlRaw("TRUNCATE TABLE CodigoPostal");                
-                // d_codigo|d_asenta   |d_tipo_asenta|D_mnpio         |d_estado         |d_ciudad           | d_CP  | c_estado  |  c_oficina|c_CP|c_tipo_asenta|c_mnpio |id_asenta_cpcons|d_zona|c_cve_ciudad
-                // 01000   | San Ángel | Colonia     | Álvaro Obregón | Ciudad de México| Ciudad de México  | 01001 | 09        |  01001    |    | 09          | 010    |0001            |Urbano|01
-                // 0       | 1         | 2           | 3              | 4               | 5                 | 6     | 7         | 8         | 9  | 10          | 11     | 12             | 13   | 14
-                for (int i = 2; i < lines.Count(); i++)
-                {
-                    string[] array;
-                    CodigoPostalEntidad codigoPostalEntity;
-
-                    array = lines[i].Split("|");
-                    Console.WriteLine($"{i} Count: " + array.Count() + " ->" + lines[i]);
-                    if (array.Length > 10)
-                    {
-                        codigoPostalEntity = new CodigoPostalEntidad
-                        {
-                            CodigoPostal = array[0],
-                            Asentamiento = array[1],
-                            TipoDeAsentamiento = array[2],
-                            Alcaldia = array[3],
-                            Estado = array[4],
-                            EstadoId = Convert.ToInt32(array[7]),
-                            AlcaldiaId = Convert.ToInt32(array[11]),
-                        };
-                        //_appDbContext.CodigoPostal.Add(codigoPostalEntity);
-                        lista.Add(codigoPostalEntity);
-                    }                   
-                }
-                
-                await _repositorioMongoDb.AgregarAsynx(lista);
-                Console.WriteLine("Terminado");
-                fechaFinal = DateTime.Now;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-            return Accepted(new { fechaInicial, fechaFinal, TotalDeRegistros = lines.Count(), Tiempo = (fechaInicial - fechaFinal).TotalSeconds });
         }
 
         /// <summary>
@@ -268,18 +128,9 @@ namespace CodigosPostales_net.Controllers
         [HttpGet("Aleatorio")]
         public async Task<IActionResult> ObtenerCodigoPostalAleatorio()
         {
-            int total;
-            Random random = new Random();
             CodigoPostalEntidad x;
 
-            total = _appDbContext.CodigoPostal.Count();
-            do
-            {
-                int id;
-
-                id = random.Next(1, total);
-                x = await _appDbContext.CodigoPostal.Where(x => x.Id == id).FirstOrDefaultAsync();
-            } while (x == null);
+            x = await _repositorioMongoDb.ObtenerCodigoPostalAleatorioAsync();
 
             return Ok(new
             {
@@ -292,5 +143,53 @@ namespace CodigosPostales_net.Controllers
                 x.Asentamiento
             });
         }
-    }
+
+        /// <summary>
+        /// Subir coleccion de codigos postales
+        /// </summary>
+        /// <param name="formFile"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> AgregarCodigosPostalesAsync(IFormFile formFile)
+        {
+            string[] lines;
+            List<CodigoPostalEntidad> codigos = new List<CodigoPostalEntidad>();
+
+            var fechaInicial = DateTime.Now;
+            var fechaFinal = DateTime.Now;
+            StreamReader reader = new StreamReader(formFile.OpenReadStream(), System.Text.Encoding.Latin1);
+            string text = reader.ReadToEnd();
+            lines = text.Split("\n");
+            // d_codigo|d_asenta   |d_tipo_asenta|D_mnpio         |d_estado         |d_ciudad           | d_CP  | c_estado  |  c_oficina|c_CP|c_tipo_asenta|c_mnpio |id_asenta_cpcons|d_zona|c_cve_ciudad
+            // 01000   | San Ángel | Colonia     | Álvaro Obregón | Ciudad de México| Ciudad de México  | 01001 | 09        |  01001    |    | 09          | 010    |0001            |Urbano|01
+            // 0       | 1         | 2           | 3              | 4               | 5                 | 6     | 7         | 8         | 9  | 10          | 11     | 12             | 13   | 14
+            for (int i = 2; i < lines.Count(); i++)
+            {
+                string[] array;
+                CodigoPostalEntidad codigoPostalEntity;
+
+                array = lines[i].Split("|");
+                if (array.Length > 10)
+                {
+                    codigoPostalEntity = new CodigoPostalEntidad
+                    {
+                        CodigoPostal = array[0],
+                        Asentamiento = array[1],
+                        TipoDeAsentamiento = array[2],
+                        Alcaldia = array[3],
+                        Estado = array[4],
+                        EstadoId = Convert.ToInt32(array[7]),
+                        AlcaldiaId = Convert.ToInt32(array[11]),
+                    };
+                    codigos.Add(codigoPostalEntity);
+                }
+            }
+            await _repositorioMongoDb.BorrarAsync();
+            await _repositorioMongoDb.AgregarAsynx(codigos);
+            fechaFinal = DateTime.Now;
+
+            return Accepted(new { fechaInicial, fechaFinal, TotalDeRegistros = lines.Count(), Tiempo = (fechaInicial - fechaFinal).TotalSeconds });
+        }
+
+    }//end class
 }

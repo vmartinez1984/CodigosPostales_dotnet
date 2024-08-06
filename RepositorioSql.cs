@@ -6,6 +6,11 @@ namespace CodigosPostales_net
     public class RepositorioSql : IRepositorio
     {
         private readonly AppDbContext _appDbContext;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appDbContext"></param>
         public RepositorioSql(AppDbContext appDbContext)
         {
             _appDbContext = appDbContext;
@@ -56,6 +61,11 @@ namespace CodigosPostales_net
             return lista;
         }
 
+        /// <summary>
+        /// Obtener codigos postales
+        /// </summary>
+        /// <param name="codigoPostal"></param>
+        /// <returns></returns>
         public async Task<List<CodigoPostalEntidad>> ObtenerCodigosPostalesAsync(string codigoPostal)
         {
             var list = await _appDbContext.CodigoPostal
@@ -72,12 +82,84 @@ namespace CodigosPostales_net
            })
            .ToListAsync();
 
-           return list;
+            return list;
         }
 
-        public Task AgregarAsynx(List<CodigoPostalEntidad> lista)
+        /// <summary>
+        /// Agrega los codigos postales en la base de datos
+        /// </summary>
+        /// <param name="lista"></param>
+        /// <returns></returns>
+        public async Task AgregarAsynx(List<CodigoPostalEntidad> lista)
         {
-            throw new NotImplementedException();
+            try
+            {
+                int j = 0;
+
+                for (int i = 0; i < lista.Count(); i++)
+                {
+                    Console.WriteLine($"{i} Count: " + lista.Count() + " ->" + lista[i]);
+                    _appDbContext.CodigoPostal.Add(lista[0]);
+
+                    if (j == 10000)
+                    {
+                        await _appDbContext.SaveChangesAsync();
+                        j = 0;
+                    }
+                    j++;
+                }
+                await _appDbContext.SaveChangesAsync();
+                Console.WriteLine("Terminado");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Borra todos los registros de la Db
+        /// </summary>
+        /// <returns></returns>
+        public async Task BorrarAsync()
+        {
+            _appDbContext.Database.ExecuteSqlRaw("TRUNCATE TABLE CodigoPostal");
+            await _appDbContext.SaveChangesAsync();
+        }
+        /// <summary>
+        /// Obtener un codigo postal aleatorio
+        /// </summary>
+        /// <returns></returns>
+        public async Task<CodigoPostalEntidad> ObtenerCodigoPostalAleatorioAsync()
+        {
+            int total;
+            Random random = new Random();
+            CodigoPostalEntidad x;
+
+            total = _appDbContext.CodigoPostal.Count();
+            do
+            {
+                int id;
+
+                id = random.Next(1, total);
+                x = await _appDbContext.CodigoPostal.Where(x => x.Id == id).FirstOrDefaultAsync();
+            } while (x == null);
+
+            return x;
+        }
+
+        /// <summary>
+        /// Obtiene los registros de codigos posta
+        /// </summary>
+        /// <param name="asentamiento"></param>
+        /// <returns></returns>
+        public async Task<List<CodigoPostalEntidad>> ObtenerCodigosPostalesPorAsentamientoAsync(string asentamiento)
+        {
+            var list = await _appDbContext.CodigoPostal
+            .Where(item => item.Asentamiento.Contains(asentamiento))
+            .ToListAsync();
+
+            return list;
         }
     }
 }

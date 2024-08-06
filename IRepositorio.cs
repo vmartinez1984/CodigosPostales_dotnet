@@ -25,11 +25,30 @@ namespace CodigosPostales_net
         /// <returns></returns>
         Task<List<Alcaldia>> ObtenerAlcaldiasAsync(string estado);
 
-         /// <summary>
+        /// <summary>
         /// Para insertar todos
         /// </summary>
         /// <param name="lista"></param>
         /// <returns></returns>
         Task AgregarAsynx(List<CodigoPostalEntidad> lista);
+
+        /// <summary>
+        /// Obtiene un codigo postal aleatorio
+        /// </summary>
+        /// <returns></returns>
+        Task<CodigoPostalEntidad> ObtenerCodigoPostalAleatorioAsync();
+
+        /// <summary>
+        /// Obtiene los codigos postales por nombre de asentamiento
+        /// </summary>
+        /// <param name="asentamiento"></param>
+        /// <returns></returns>
+        Task<List<CodigoPostalEntidad>> ObtenerCodigosPostalesPorAsentamientoAsync(string asentamiento);
+
+        /// <summary>
+        /// Borra todos los registros de la tabla
+        /// </summary>
+        /// <returns></returns>
+        Task BorrarAsync();
     }
 }

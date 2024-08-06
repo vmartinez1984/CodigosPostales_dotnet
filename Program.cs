@@ -5,10 +5,6 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// builder.Services.Configure<DataSettingMongoDb>(
-//     builder.Configuration.GetSection("DataSettingMongoDb")
-// );
 builder.Services.AddScoped<AppDbContext>();
 builder.Services.AddScoped<RepositorioMongoDb>();
 builder.Services.Configure<DataSettingMongoDb>(
@@ -21,13 +17,9 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Version = "v1.1",
-        Title = "Api de museos de la CDMX",
-        Description = @"Es una ApiRest que muestra información de museos de la ciudad de México, con el objetivo 
-        de probar los workerservices.
-        probando el scraping web para obtener de detalles de costos, información adicional que no esta en el json.
-        <br/>La información fue publicada por el Sistema de información de Cultura/Secretaría de cultura 
-        Consultado en https://sic.cultura.gob.mx/opendata/d/9_museo_directorio.json el 10 de agosto de 2022",
+        Version = "v3",
+        Title = "Api de Código Postales",
+        Description = @"Es un api de los códigos postales de SEPOMEX",
         Contact = new OpenApiContact
         {
             Name = "Víctor Martínez",
@@ -38,10 +30,6 @@ builder.Services.AddSwaggerGen(options =>
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
-
-// builder.Services.AddRepositoryCodigosPostalesSql();
-// builder.Services.AddCodigosPostalesMappers();
-// builder.Services.AddCodigosPostalesBusinessLayer();
 
 builder.Services.AddCors(options => options.AddPolicy("AllowWebApp", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
