@@ -164,18 +164,36 @@ namespace CodigosPostales_net
         /// <returns></returns>
         public async Task<CodigoPostalEntidad> ObtenerCodigoPostalAleatorioAsync(string estado)
         {
-            Random random = new Random();
-            List<CodigoPostalEntidad> codigos;
-            int estadoId;
+            var random = new Random();
+            FilterDefinition<CodigoPostalEntidad> filter;
 
-            if (int.TryParse(estado, out estadoId))
-                codigos = (await _collection.FindAsync(x => x.EstadoId == estadoId)).ToList();
+            if (int.TryParse(estado, out int estadoId))
+            {
+                filter = Builders<CodigoPostalEntidad>.Filter.Eq(x => x.EstadoId, estadoId);
+            }
             else
-                codigos = (await _collection.FindAsync(x => x.Estado == estado)).ToList();
+            {
+                filter = Builders<CodigoPostalEntidad>.Filter.Eq(x => x.Estado, estado);
+            }
 
-            var i = random.Next(0, codigos.Count);
+            // Obtén el número total de documentos que cumplen el filtro
+            var totalDocuments = await _collection.CountDocumentsAsync(filter);
 
-            return codigos[i];
+            if (totalDocuments == 0)
+            {
+                return null; // O maneja el caso en que no se encuentren documentos
+            }
+
+            // Selecciona un índice aleatorio
+            var randomIndex = random.Next(0, (int)totalDocuments);
+
+            // Usa Find para obtener solo el documento necesario
+            var resultado = await _collection.Find(filter)
+                                             .Skip(randomIndex)
+                                             .Limit(1)
+                                             .FirstOrDefaultAsync();
+
+            return resultado;
         }
     }
 }
