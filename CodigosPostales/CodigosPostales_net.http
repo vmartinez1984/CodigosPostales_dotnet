@@ -1,0 +1,21 @@
+@CodigosPostales_net_HostAddress = https://localhost:7130
+
+GET {{CodigosPostales_net_HostAddress}}/api/CodigosPostales/Estados/
+Accept: application/json
+###
+
+GET {{CodigosPostales_net_HostAddress}}/api/CodigosPostales/Estados/9/Alcaldias
+Accept: application/json
+###
+
+GET {{CodigosPostales_net_HostAddress}}/api/CodigosPostales/Estados/9/Alcaldias/15
+###
+
+GET {{CodigosPostales_net_HostAddress}}/api/CodigosPostales/42950
+
+###
+GET {{CodigosPostales_net_HostAddress}}/api/CodigosPostales/OBrera/Buscar
+
+###
+
+GET {{CodigosPostales_net_HostAddress}}/api/CodigosPostales/Aleatorio
