@@ -211,7 +211,7 @@ namespace CodigosPostales_net.Controllers
         /// <param name="formFile"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> AgregarCodigosPostalesAsync(IFormFile formFile)
+        public async Task<IActionResult> AgregarCodigosPostalesAsync([Required]IFormFile formFile)
         {
             string[] lines;
             List<CodigoPostalEntidad> codigos = new List<CodigoPostalEntidad>();

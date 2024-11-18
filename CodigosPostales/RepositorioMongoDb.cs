@@ -43,7 +43,7 @@ namespace CodigosPostales_net
         {
             string stringConnection = configuration.GetConnectionString("CodigosPostales");
             var mongoClient = new MongoClient(stringConnection);
-            string databaseName = stringConnection.Split("/").Last();
+            string databaseName = stringConnection.Split("/").Last().Split("?").First();
             _mongoDatabase = mongoClient.GetDatabase(databaseName);
             _collection = _mongoDatabase.GetCollection<CodigoPostalEntidad>("CodigosPostales");
         }

@@ -19,10 +19,10 @@ builder.Host.UseSerilog();
 //Muestra el error de serilog
 SelfLog.Enable(Console.Error);
 
-builder.Services.AddScoped<AppDbContext>();
-builder.Services.AddScoped<IRepositorio, RepositorioSql>();
+//builder.Services.AddScoped<AppDbContext>();
+//builder.Services.AddScoped<IRepositorio, RepositorioSql>();
 
-//builder.Services.AddScoped<IRepositorio, RepositorioMongoDb>();
+builder.Services.AddScoped<IRepositorio, RepositorioMongoDb>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
