@@ -1,4 +1,4 @@
-﻿version: '3.4'
+﻿#version: '3.4' #ver overrride
 
 services:
   codigospostales_net:
@@ -8,9 +8,9 @@ services:
       dockerfile: CodigosPostales/Dockerfile
     depends_on:
         - mongodb  # Esto asegura que MongoDB esté listo antes de iniciar el servicio clientesms 
-    ports:
-      - "8480:80"  # Mapea el puerto para acceder a la app desde fuera del contenedor
-      - "8443:443"
+    #ports: #ver overrride
+      #- "8480:80"  # Mapea el puerto para acceder a la app desde fuera del contenedor
+      #- "8443:443"
     networks:
       - app-network
 

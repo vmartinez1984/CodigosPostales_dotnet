@@ -7,6 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodigosPostales_net", "Codi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B03E8B4A-0D45-473B-B6EA-2BCF1492E1EC}"
 	ProjectSection(SolutionItems) = preProject
+		..\..\..\..\Desktop\Mambu.postman_collection.json = ..\..\..\..\Desktop\Mambu.postman_collection.json
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
