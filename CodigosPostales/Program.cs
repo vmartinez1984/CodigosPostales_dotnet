@@ -1,23 +1,9 @@
 using CodigosPostales_net;
 using Microsoft.OpenApi.Models;
-using Serilog;
-using Serilog.Debugging;
 using System.Reflection;
 using VMtz84.Logger.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Configura Serilog
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)  // Lee configuración desde appsettings.json
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .CreateLogger();
-
-// Reemplaza el logger predeterminado por Serilog
-builder.Host.UseSerilog();
-//Muestra el error de serilog
-SelfLog.Enable(Console.Error);
 
 //builder.Services.AddScoped<AppDbContext>();
 //builder.Services.AddScoped<IRepositorio, RepositorioSql>();
