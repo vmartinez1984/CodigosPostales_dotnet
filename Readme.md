@@ -21,7 +21,7 @@ Elija la opción Txt, descomprima y agregue en el post el archivo txt
 
 4.- Ya puede hacer sus consultas
 
-´´´Bash
+´´´```mermaid
 flowchart TD
     A[Api] --> B[Reglas de negocio]    
     B --> D[Repositorios]
