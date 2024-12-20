@@ -57,7 +57,7 @@ namespace CodigosPostales_net
                 Id = x.AlcaldiaId.ToString()
             })
             .Distinct()
-            .OrderBy(x => x.Id)
+            .OrderBy(x => x.Nombre)
             .ToListAsync();
 
             return lista;
@@ -100,8 +100,8 @@ namespace CodigosPostales_net
 
                 for (int i = 0; i < lista.Count(); i++)
                 {
-                    Console.WriteLine($"{i} Count: " + lista.Count() + " ->" + lista[i]);
-                    _appDbContext.CodigoPostal.Add(lista[0]);
+                    Console.WriteLine($"{i.ToString().PadRight(6,'0')}/" + lista.Count() + " ->" + lista[i]);
+                    _appDbContext.CodigoPostal.Add(lista[i]);
 
                     if (j == 10000)
                     {
