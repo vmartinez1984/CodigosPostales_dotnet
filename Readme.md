@@ -21,10 +21,10 @@ Elija la opción Txt, descomprima y agregue en el post el archivo txt
 
 4.- Ya puede hacer sus consultas
 
-´´´```mermaid
+```mermaid
 flowchart TD
     A[Api] --> B[Reglas de negocio]    
     B --> D[Repositorios]
     D -.-> sql[(Sql)]
     D -.-> nosql[(noSql)]
-´´´
+```
