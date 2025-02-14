@@ -11,6 +11,18 @@ namespace CodigosPostales_net
         private readonly IMongoDatabase _mongoDatabase;
         private readonly IMongoCollection<CodigoPostalEntidad> _collection;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="configuration"></param>
+        public RepositorioMongoDb(IConfiguration configuration)
+        {
+            string stringConnection = configuration.GetConnectionString("CodigosPostales");
+            var mongoClient = new MongoClient(stringConnection);
+            string databaseName = stringConnection.Split("/").Last().Split("?").First();
+            _mongoDatabase = mongoClient.GetDatabase(databaseName);
+            _collection = _mongoDatabase.GetCollection<CodigoPostalEntidad>("CodigosPostales");
+        }
 
         /// <summary>
         /// Lista de estados
@@ -34,20 +46,7 @@ namespace CodigosPostales_net
                 Nombre = x.Estado
             }).ToList();
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="configuration"></param>
-        public RepositorioMongoDb(IConfiguration configuration)
-        {
-            string stringConnection = configuration.GetConnectionString("CodigosPostales");
-            var mongoClient = new MongoClient(stringConnection);
-            string databaseName = stringConnection.Split("/").Last().Split("?").First();
-            _mongoDatabase = mongoClient.GetDatabase(databaseName);
-            _collection = _mongoDatabase.GetCollection<CodigoPostalEntidad>("CodigosPostales");
-        }
-
+               
         /// <summary>
         /// Obtener alcaldias de un estado
         /// </summary>

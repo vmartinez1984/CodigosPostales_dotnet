@@ -20,37 +20,7 @@ namespace CodigosPostales_net.Controllers
         public CodigosPostalesController(IRepositorio repositorio)
         {
             _repositorio = repositorio;
-        }
-
-        /// <summary>
-        /// Lista de estados
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("Estados", Name = "Estados")]
-        [ProducesResponseType(typeof(Estado), 200)]
-        [Produces("application/json")]
-        public async Task<IActionResult> ObtenerEstadosAsync()
-        {
-            var lista = await _repositorio.ObtenerEstadosASync();
-
-            return Ok(lista.OrderBy(x => x.Nombre));
-        }
-
-        /// <summary>
-        /// Lista de municipios por estado
-        /// </summary>
-        /// <param name="estado"></param>
-        /// <returns></returns>
-        [HttpGet("Estados/{estado}/Alcaldias")]
-        [ProducesResponseType(typeof(Alcaldia), 200)]
-        [Produces("application/json")]
-        public async Task<IActionResult> ObtenerAlcaldias(string estado)
-        {
-            var lista = await _repositorio.ObtenerAlcaldiasAsync(estado);
-            HttpContext.Response.Headers.Append("Total", lista.Count.ToString());
-
-            return Ok(lista);
-        }
+        }       
 
         /// <summary>
         /// Códigos por estado y alcaldia
@@ -59,7 +29,7 @@ namespace CodigosPostales_net.Controllers
         /// <param name="alcaldia"></param>
         /// <returns>Codigos postales</returns>
         [HttpGet("Estados/{estado}/Alcaldias/{alcaldia}")]
-        [ProducesResponseType(typeof(CodigoPostalDto), 200)]
+        [ProducesResponseType(typeof(List<CodigoPostalDto>), 200)]
         [Produces("application/json")]
         public async Task<IActionResult> GetZipCodesByMunicipality(string estado, string alcaldia)
         {

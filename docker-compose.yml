@@ -7,10 +7,7 @@ services:
       context: .
       dockerfile: CodigosPostales/Dockerfile
     depends_on:
-        - mongodb  # Esto asegura que MongoDB esté listo antes de iniciar el servicio clientesms 
-    #ports: #ver overrride
-      #- "8480:80"  # Mapea el puerto para acceder a la app desde fuera del contenedor
-      #- "8443:443"
+        - mongodb  # Esto asegura que MongoDB esté listo antes de iniciar el servicio clientesms
     networks:
       - app-network
 
