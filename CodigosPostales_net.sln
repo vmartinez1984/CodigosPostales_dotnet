@@ -13,6 +13,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{347B9D96-351C-4031-96DF-90829937CF41}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodigosPostales.ReglasDeNegocio", "..\CodigosPostales.ReglasDeNegocio\CodigosPostales.ReglasDeNegocio.csproj", "{9F23B2FA-FF6D-4601-ACED-E5A46259D0BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodigosPostales.Repositorios", "..\CodigosPostales.Repositorios\CodigosPostales.Repositorios.csproj", "{EEF7973C-9ACC-4CB3-BC5A-0666938BA40D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodigosPostales_dotnet_wcf", "..\CodigosPostales_dotnet_wcf\CodigosPostales_dotnet_wcf.csproj", "{095EBDEA-918A-44E1-95BE-115ECDCECA69}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +33,18 @@ Global
 		{347B9D96-351C-4031-96DF-90829937CF41}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{347B9D96-351C-4031-96DF-90829937CF41}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{347B9D96-351C-4031-96DF-90829937CF41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F23B2FA-FF6D-4601-ACED-E5A46259D0BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F23B2FA-FF6D-4601-ACED-E5A46259D0BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F23B2FA-FF6D-4601-ACED-E5A46259D0BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F23B2FA-FF6D-4601-ACED-E5A46259D0BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEF7973C-9ACC-4CB3-BC5A-0666938BA40D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEF7973C-9ACC-4CB3-BC5A-0666938BA40D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEF7973C-9ACC-4CB3-BC5A-0666938BA40D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEF7973C-9ACC-4CB3-BC5A-0666938BA40D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{095EBDEA-918A-44E1-95BE-115ECDCECA69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{095EBDEA-918A-44E1-95BE-115ECDCECA69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{095EBDEA-918A-44E1-95BE-115ECDCECA69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{095EBDEA-918A-44E1-95BE-115ECDCECA69}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

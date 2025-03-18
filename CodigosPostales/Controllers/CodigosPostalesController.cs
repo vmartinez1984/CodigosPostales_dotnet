@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using CodigosPostales_net.Dtos;
+using CodigosPostales.ReglasDeNegocio;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodigosPostales_net.Controllers
@@ -11,13 +11,13 @@ namespace CodigosPostales_net.Controllers
     [Route("api/[controller]")]
     public class CodigosPostalesController : ControllerBase
     {
-        private readonly IRepositorio _repositorio;
+        private readonly ICodigoPostalRdn _repositorio;
 
         /// <summary>
         /// Constructor
         /// </summary>        
         /// <param name="repositorio"></param>
-        public CodigosPostalesController(IRepositorio repositorio)
+        public CodigosPostalesController(ICodigoPostalRdn repositorio)
         {
             _repositorio = repositorio;
         }       
@@ -31,20 +31,9 @@ namespace CodigosPostales_net.Controllers
         [HttpGet("Estados/{estado}/Alcaldias/{alcaldia}")]
         [ProducesResponseType(typeof(List<CodigoPostalDto>), 200)]
         [Produces("application/json")]
-        public async Task<IActionResult> GetZipCodesByMunicipality(string estado, string alcaldia)
+        public async Task<IActionResult> ObtenerCodigosPostalesPorAlcaldia(string estado, string alcaldia)
         {
-            var lista = (await _repositorio.ObtenerCodigosPostalesAsync(estado, alcaldia))
-            .Select(x => new CodigoPostalDto
-            {
-                CodigoPostal = x.CodigoPostal,
-                AlcaldiaId = x.AlcaldiaId,
-                Estado = x.Estado,
-                EstadoId = x.EstadoId,
-                Alcaldia = x.Alcaldia,
-                TipoDeAsentamiento = x.TipoDeAsentamiento,
-                Asentamiento = x.Asentamiento
-            })
-            .ToList();
+            var lista = await _repositorio.ObtenerCodigosPostalesAsync(estado, alcaldia);        
 
             HttpContext.Response.Headers.Append("Total", lista.Count.ToString());
             return Ok(lista);
@@ -59,20 +48,9 @@ namespace CodigosPostales_net.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> ObtenerCodigosPostales([StringLength(5, MinimumLength = 5)] string codigoPostal)
         {
-            var lista = (await _repositorio.ObtenerCodigosPostalesAsync(codigoPostal))
-            .Select(x => new
-            {
-                x.CodigoPostal,
-                x.AlcaldiaId,
-                x.Estado,
-                x.EstadoId,
-                x.Alcaldia,
-                x.TipoDeAsentamiento,
-                x.Asentamiento
-            })
-            .ToList();
-
+            var lista = await _repositorio.ObtenerCodigosPostalesAsync(codigoPostal);
             HttpContext.Response.Headers.Append("Total", lista.Count.ToString());
+
             return Ok(lista);
         }
 
@@ -86,20 +64,9 @@ namespace CodigosPostales_net.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> ObtenerCodigosPostalesPorAsentamientamiento(string asentamiento)
         {
-            var lista = (await _repositorio.ObtenerCodigosPostalesPorAsentamientoAsync(asentamiento))
-            .Select(x => new
-            {
-                x.CodigoPostal,
-                x.AlcaldiaId,
-                x.Estado,
-                x.EstadoId,
-                x.Alcaldia,
-                x.TipoDeAsentamiento,
-                x.Asentamiento
-            })
-            .ToList();
-
+            var lista = await _repositorio.BuscarCodigosPostalesAsync(asentamiento);
             HttpContext.Response.Headers.Append("Total", lista.Count.ToString());
+
             return Ok(lista);
         }
 
@@ -113,23 +80,12 @@ namespace CodigosPostales_net.Controllers
         [HttpGet("Estados/{estado}/Alcaldias/{alcaldia}/{asentamiento}/Buscar")]
         [ProducesResponseType(typeof(List<CodigoPostalDto>), 200)]
         [Produces("application/json")]
-        public async Task<IActionResult> GetZipCodesByMunicipality(string estado, string alcaldia, string asentamiento)
+        public async Task<List<CodigoPostalDto>> ObtenerCodigosPostalesAsync(string estado, string alcaldia, string asentamiento)
         {
-            var lista = (await _repositorio.ObtenerCodigosPostalesAsync(estado, alcaldia, asentamiento))
-            .Select(x => new
-            {
-                x.CodigoPostal,
-                x.AlcaldiaId,
-                x.Estado,
-                x.EstadoId,
-                x.Alcaldia,
-                x.TipoDeAsentamiento,
-                x.Asentamiento
-            })
-            .ToList();
-
+            var lista = await _repositorio.ObtenerCodigosPostalesAsync(estado, alcaldia, asentamiento);
             HttpContext.Response.Headers.Append("Total", lista.Count.ToString());
-            return Ok(lista);
+
+            return lista;
         }
 
         /// <summary>
@@ -139,22 +95,13 @@ namespace CodigosPostales_net.Controllers
         [HttpGet("Aleatorio")]
         [ProducesResponseType(typeof(CodigoPostalDto), 200)]
         [Produces("application/json")]
-        public async Task<IActionResult> ObtenerCodigoPostalAleatorio()
+        public async Task<CodigoPostalDto> ObtenerCodigoPostalAleatorio()
         {
-            CodigoPostalEntidad x;
+            CodigoPostalDto x;
 
             x = await _repositorio.ObtenerCodigoPostalAleatorioAsync();
 
-            return Ok(new
-            {
-                x.CodigoPostal,
-                x.AlcaldiaId,
-                x.Estado,
-                x.EstadoId,
-                x.Alcaldia,
-                x.TipoDeAsentamiento,
-                x.Asentamiento
-            });
+            return x;
         }
 
         /// <summary>
@@ -176,20 +123,11 @@ namespace CodigosPostales_net.Controllers
                 }
 
             }
-            CodigoPostalEntidad x;
+            CodigoPostalDto x;
 
             x = await _repositorio.ObtenerCodigoPostalAleatorioAsync(estado);
 
-            return Ok(new
-            {
-                x.CodigoPostal,
-                x.AlcaldiaId,
-                x.Estado,
-                x.EstadoId,
-                x.Alcaldia,
-                x.TipoDeAsentamiento,
-                x.Asentamiento
-            });
+            return Ok(x);
         }
 
         /// <summary>
@@ -200,40 +138,14 @@ namespace CodigosPostales_net.Controllers
         [HttpPost]
         public async Task<IActionResult> AgregarCodigosPostalesAsync([Required] IFormFile formFile)
         {
-            string[] lines;
-            List<CodigoPostalEntidad> codigos = new List<CodigoPostalEntidad>();
+            string[] lines;            
 
             var fechaInicial = DateTime.Now;
             var fechaFinal = DateTime.Now;
             StreamReader reader = new StreamReader(formFile.OpenReadStream(), System.Text.Encoding.Latin1);
             string text = reader.ReadToEnd();
             lines = text.Split("\n");
-            // d_codigo|d_asenta   |d_tipo_asenta|D_mnpio         |d_estado         |d_ciudad           | d_CP  | c_estado  |  c_oficina|c_CP|c_tipo_asenta|c_mnpio |id_asenta_cpcons|d_zona|c_cve_ciudad
-            // 01000   | San Ángel | Colonia     | Álvaro Obregón | Ciudad de México| Ciudad de México  | 01001 | 09        |  01001    |    | 09          | 010    |0001            |Urbano|01
-            // 0       | 1         | 2           | 3              | 4               | 5                 | 6     | 7         | 8         | 9  | 10          | 11     | 12             | 13   | 14
-            for (int i = 2; i < lines.Count(); i++)
-            {
-                string[] array;
-                CodigoPostalEntidad codigoPostalEntity;
-
-                array = lines[i].Split("|");
-                if (array.Length > 10)
-                {
-                    codigoPostalEntity = new CodigoPostalEntidad
-                    {
-                        CodigoPostal = array[0],
-                        Asentamiento = array[1],
-                        TipoDeAsentamiento = array[2],
-                        Alcaldia = array[3],
-                        Estado = array[4],
-                        EstadoId = Convert.ToInt32(array[7]),
-                        AlcaldiaId = Convert.ToInt32(array[11]),
-                    };
-                    codigos.Add(codigoPostalEntity);
-                }
-            }
-            await _repositorio.BorrarAsync();
-            await _repositorio.AgregarAsynx(codigos);
+            await _repositorio.AgregarCodigosPostalesAsync(lines);
             fechaFinal = DateTime.Now;
 
             return Accepted(new { fechaInicial, fechaFinal, TotalDeRegistros = lines.Count(), Tiempo = (fechaInicial - fechaFinal).TotalSeconds });

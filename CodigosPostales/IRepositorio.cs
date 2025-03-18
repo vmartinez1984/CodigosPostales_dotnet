@@ -1,16 +1,14 @@
-
-
 namespace CodigosPostales_net
 {
     /// <summary>
     /// Interfaz para el repo
-    /// </summary>
+    /// </summary>    
     public interface IRepositorio
     {
         /// <summary>
         /// Obtiene los estados
         /// </summary>
-        /// <returns></returns>
+        /// <returns></returns>        
         Task<List<Estado>> ObtenerEstadosASync();
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using CodigosPostales.ReglasDeNegocio;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodigosPostales_net.Controllers
@@ -7,13 +7,13 @@ namespace CodigosPostales_net.Controllers
     [ApiController]
     public class EstadosController : ControllerBase
     {
-        private readonly IRepositorio _repositorio;
+        private readonly ICodigoPostalRdn _repositorio;
 
         /// <summary>
         /// Constructor
         /// </summary>        
         /// <param name="repositorio"></param>
-        public EstadosController(IRepositorio repositorio)
+        public EstadosController(ICodigoPostalRdn repositorio)
         {
             _repositorio = repositorio;
         }
@@ -28,7 +28,8 @@ namespace CodigosPostales_net.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> ObtenerEstadosAsync()
         {
-            var lista = await _repositorio.ObtenerEstadosASync();
+            var lista = await _repositorio.ObtenerEstadosAsync();
+            HttpContext.Response.Headers.Append("Total", lista.Count.ToString());
 
             return Ok(lista.OrderBy(x => x.Nombre));
         }
